@@ -11,8 +11,14 @@ export type RoutHandler = (req: IncomingMessage, res: ServerResponse) => void;
         }
     }
 */
+// {
+//   'GET' => Map(1) { '/' => [Function (anonymous)] },     
+//   'POST' => Map(0) {}
+// }
 
 export const routes: Map<string, Map<string, RoutHandler>> = new Map();
+
+
 
 export default function addRoute(
   method: string,
@@ -23,6 +29,5 @@ export default function addRoute(
   if (!routes.has(method)) {
     routes.set(method, new Map());
   }
-
   routes.get(method)!.set(path, handler);
 }

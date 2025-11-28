@@ -1,56 +1,30 @@
 import http, { IncomingMessage, Server, ServerResponse } from "http";
 import config from "./config";
-import addRoute, { routes, RoutHandler } from "./helper/routeHandler";
+import { routes, RoutHandler } from "./helper/routeHandler";
+import sendJson from "./helper/sendJson";
 
-addRoute("GET", "/", (req, res) => {
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(
-    JSON.stringify({
-      message: "Welcome to the Home Page",
-      status: "success",
-    })
-  );
-});
+import './routes/index'
 
-addRoute("POST", "/api/user", (req, res) => {
-  let body = "";
 
-  req.on("data", (chunk) => {
-    body += chunk.toString();
-  });
-
-  req.on("end", () => {
-    try {
-      const parsedBody = JSON.parse(body);
-      console.log(body, parsedBody);
-
-      res.end(JSON.stringify(parsedBody));
-    } catch (err: any) {
-      console.log(err?.message);
-    }
-  });
-});
 
 const server: Server = http.createServer(
   (req: IncomingMessage, res: ServerResponse) => {
-    const path = req.url || "";
-    const method = req.method?.toUpperCase() || "";
+    const path = req.url || ""; // get API endpoints
+    const method = req.method?.toUpperCase() || ""; // get API methods
+    const methodMap = routes.get(method); // Get method from the map
 
-    const methodMap = routes.get(method);
-
+    // Get method depending on path
     const handler: RoutHandler | undefined = methodMap?.get(path);
 
     if (handler) {
       handler(req, res);
     } else {
-      res.writeHead(404, { "Content-Type": "application/json" });
-      res.end(
-        JSON.stringify({
-          message: "Not found page",
-          status: 404,
-          success: false,
-        })
-      );
+      sendJson(res, 404, {
+        message: "No route exists",
+        data: {},
+        status: 404,
+        success: false,
+      });
     }
   }
 );
