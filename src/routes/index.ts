@@ -1,5 +1,9 @@
+
+import { json } from "stream/consumers";
+import { readData, writeData } from "../helper/fileDb";
+import parseBody from "../helper/parseBody";
 import addRoute from "../helper/routeHandler";
-import sendJson from "../helper/sendJson";
+import { sendJson } from "../helper/sendJson";
 
 // Root Route
 addRoute("GET", "/", (req, res) => {
@@ -12,29 +16,39 @@ addRoute("GET", "/", (req, res) => {
 });
 
 // User Post Route
-addRoute("POST", "/api/user", (req, res) => {
-  let body = "";
+addRoute("POST", "/api/user", async(req, res) => {
+  const body = await parseBody(req); // get data from client
+  // Data base work
 
-  req.on("data", (chunk) => {
-    body += chunk.toString();
-  });
+  const user = readData();
+  
+  const totalUser = user.length;
+  const newUser = {
+    id:totalUser + 1,
+    ...body
+  }
+  user.push(newUser)
 
-  req.on("end", () => {
-    try {
-      const parsedBody = JSON.parse(body);
+  writeData(user)
 
-      res.end(JSON.stringify(parsedBody));
-    } catch (err: any) {
-      console.log(err?.message);
-    }
+  // send response
+
+  sendJson(res, 201, {
+    message: "Successfully insert User in the data",
+    data: newUser,
+    status: 200,
+    success: true,
   });
 });
 
 // overview page
-addRoute("GET", "/overview", (req, res) => {
+addRoute("GET", "/user", (req, res) => {
+  const userData = readData()
+
+
   sendJson(res, 200, {
     message: "welcome to overview page",
-    data: {},
+    data: userData,
     status: 200,
     success: true,
   });

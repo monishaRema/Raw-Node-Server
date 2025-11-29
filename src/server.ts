@@ -1,7 +1,7 @@
 import http, { IncomingMessage, Server, ServerResponse } from "http";
 import config from "./config";
 import { routes, RoutHandler } from "./helper/routeHandler";
-import sendJson from "./helper/sendJson";
+import {sendJson} from "./helper/sendJson";
 
 import './routes/index'
 
